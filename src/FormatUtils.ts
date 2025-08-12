@@ -1,14 +1,10 @@
-export namespace FormatUtils {
-
-  export function toUnits(src: number | string | bigint, decimal: number = 9): bigint {
-    return BigInt(quantityMultiplyDecimal(`${src}`, decimal))
-  }
-
-  export function fromUnits(src: number | string | bigint, decimal: number = 9): string {
-    return quantityDivideDecimal(`${src}`, decimal)
-  }
-
-  export function deformatNumberToPureString(shitNumber: string) {
+export const FormatUtils = {
+  toUnits(src: number | string | bigint, decimal: number = 9): bigint {
+    return BigInt(this.quantityMultiplyDecimal(`${src}`, decimal))
+  },
+  fromUnits(src: number | string | bigint, decimal: number = 9): string {
+    return this.quantityDivideDecimal(`${src}`, decimal)
+  }, deformatNumberToPureString(shitNumber: string) {
     const scientistMatchGroups = shitNumber.match(/(\d)\.(\d+)[e|E]([-|+])(\d+)/)
     if (scientistMatchGroups && scientistMatchGroups.length === 5) { //scientist number
       const symbol = scientistMatchGroups[3]
@@ -22,7 +18,7 @@ export namespace FormatUtils {
         return fixStr
       }
     } else {
-      const shitfortmatNumer = revertSubSymbol(shitNumber)
+      const shitfortmatNumer = this.revertSubSymbol(shitNumber)
       const shitNumberMatchGroups = shitfortmatNumer.match(/0\.0\{(\d+)\}(\d+)/)
       if (shitNumberMatchGroups && shitNumberMatchGroups.length === 3) { //shit number 0.0{5}1234
         const fixStr = '0.' + '0'.repeat(Number(shitNumberMatchGroups[1])) + shitNumberMatchGroups[2]
@@ -30,10 +26,8 @@ export namespace FormatUtils {
       }
     }
     return shitNumber
-  }
-
-  export function quantityDivideDecimal(quantity: string, decimal: number) {
-    const pureString = deformatNumberToPureString(quantity)
+  }, quantityDivideDecimal(quantity: string, decimal: number) {
+    const pureString = this.deformatNumberToPureString(quantity)
     let numbers = pureString.split('.')[0].replace(/^0+/, "")
     if (numbers.length > 0) {
       const dt = (decimal + 1) - numbers.length
@@ -44,14 +38,12 @@ export namespace FormatUtils {
       if (offset === 0) {
         offset = 1
       }
-      return removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join(''))
+      return this.removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join(''))
     } else {
       return '0'
     }
-  }
-
-  export function quantityMultiplyDecimal(quantity: string, decimal: number) {
-    const pureString = deformatNumberToPureString(quantity)
+  }, quantityMultiplyDecimal(quantity: string, decimal: number) {
+    const pureString = this.deformatNumberToPureString(quantity)
     const numbers = pureString.split('.')
     if (numbers.length >= 2) {
       const head = numbers[0]
@@ -65,9 +57,7 @@ export namespace FormatUtils {
     } else {
       return numbers[0] + '0'.repeat(decimal)
     }
-  }
-
-  export function shitNumber(number: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
+  }, shitNumber(number: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
     let num = 0
     if (typeof (number) === 'string') {
       const value = Number(number)
@@ -80,7 +70,7 @@ export namespace FormatUtils {
     }
 
     if (num > 1) {
-      return removeDecimalTailZeros(num.toFixed(2))
+      return this.removeDecimalTailZeros(num.toFixed(2))
     } else {
       const numStr = num.toString()
       const matchGroups = numStr.match(/(\d)\.(\d+)[e|E]-(\d+)/)
@@ -93,7 +83,7 @@ export namespace FormatUtils {
         if ((Number(matchGroups[3]) - 1) > limitZeroCount) {
           fixStr = '0.0' + `{${Number(matchGroups[3]) - 1}}` + tail
         }
-        return removeDecimalTailZeros(fixStr)
+        return this.removeDecimalTailZeros(fixStr)
       } else {
         const matchGroups = numStr.match(/0\.(0+)([1-9]+[0]*[1-9]+)/)
         if (matchGroups && matchGroups.length === 3) {
@@ -106,19 +96,17 @@ export namespace FormatUtils {
           if (zeroCount > limitZeroCount) {
             fixStr = '0.0' + `{${zeroCount}}` + tail
           }
-          fixStr = removeDecimalTailZeros(fixStr)
+          fixStr = this.removeDecimalTailZeros(fixStr)
           if (numStr.startsWith('-')) {
             fixStr = '-' + fixStr
           }
           return fixStr
         } else {
-          return removeDecimalTailZeros(num.toFixed(tailValidNumberCount))
+          return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount))
         }
       }
     }
-  }
-
-  export function compactNumber(number: string | number, digits: number = 2) {
+  }, compactNumber(number: string | number, digits: number = 2) {
     if (number === undefined || number === null) {
       return ''
     }
@@ -144,9 +132,7 @@ export namespace FormatUtils {
     const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/
     const item = lookup.findLast(item => num >= item.value)
     return item ? (num / item.value).toFixed(digits).replace(regexp, "").concat(item.symbol) : "0"
-  }
-
-  export function fixToSubSymbol(v: string) {
+  }, fixToSubSymbol(v: string) {
     const subscriptMap: { [key: string]: string } = {
       '0': '₀',
       '1': '₁',
@@ -162,9 +148,7 @@ export namespace FormatUtils {
     return v.replace(/\{(\d+)\}/g, (_, p1: string) => {
       return p1.split('').map(digit => subscriptMap[digit] || digit).join('')
     })
-  }
-
-  export function revertSubSymbol(v: string) {
+  }, revertSubSymbol(v: string) {
     const subscriptToNormalMap: { [key: string]: string } = {
       '₀': '0',
       '₁': '1',
@@ -181,17 +165,13 @@ export namespace FormatUtils {
       const normalDigits = match.split('').map(digit => subscriptToNormalMap[digit] || digit).join('')
       return `{${normalDigits}}`
     })
-  }
-
-  export function toTradingViewNumber(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
-    return fixToSubSymbol(shitNumber(text, tailValidNumberCount, limitZeroCount))
-  }
-
-  export function groupBy3Numbers(text: string | number | undefined | null) {
+  }, toTradingViewNumber(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
+    return this.fixToSubSymbol(this.shitNumber(text, tailValidNumberCount, limitZeroCount))
+  }, groupBy3Numbers(text: string | number | undefined | null) {
     if (text !== undefined && text !== null) {
       let valueString = ''
       if (typeof (text) === 'number') {
-        valueString = deformatNumberToPureString(text.toString())
+        valueString = this.deformatNumberToPureString(text.toString())
       } else {
         valueString = text
       }
@@ -204,29 +184,19 @@ export namespace FormatUtils {
       }
     }
     return ''
-  }
-
-  export function removeDecimalTailZeros(text: string) {
+  }, removeDecimalTailZeros(text: string) {
     return text.replace(/\.0+$|(?<=\.[0-9]*[1-9])0+$/, "")
-  }
-
-  export function formatTokenPrice(price: string | number | undefined | null, placeholder: string = '--') {
+  }, formatTokenPrice(price: string | number | undefined | null, placeholder: string = '--') {
     if (price !== undefined && price !== null) {
-      return '$' + shitNumber(price)
+      return '$' + this.shitNumber(price)
     }
     return placeholder
-  }
-
-  ///with currency symbol compact by k M B T P E 
-  export function formatMCap(amount: string | number | undefined | null, symbol: string = '$', placeholder: string = '--') {
+  }, formatMCap(amount: string | number | undefined | null, symbol: string = '$', placeholder: string = '--') {///with currency symbol compact by k M B T P E 
     if (amount !== undefined && amount !== null) {
-      return symbol + formatQuantity(amount)
+      return symbol + this.formatQuantity(amount)
     }
     return placeholder
-  }
-
-  /// compact by k M B T P E or shitnumber
-  export function formatQuantity(balance: string | number | undefined | null, placeholder: string = '--') {
+  }, formatQuantity(balance: string | number | undefined | null, placeholder: string = '--') {  /// compact by k M B T P E or shitnumber
     if (balance !== undefined && balance !== null) {
       let num = 0
       if (typeof (balance) === 'string') {
@@ -240,16 +210,14 @@ export namespace FormatUtils {
       }
 
       if (num > 1) {
-        return compactNumber(balance, 2)
+        return this.compactNumber(balance, 2)
       } else {
-        return shitNumber(num)
+        return this.shitNumber(num)
       }
     }
     return placeholder
-  }
-
-  export function formatTokenSupply(supply: string | number) {
-    return compactNumber(supply, 0)
+  }, formatTokenSupply(supply: string | number) {
+    return this.compactNumber(supply, 0)
   }
 
 }
