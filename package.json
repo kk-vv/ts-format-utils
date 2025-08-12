@@ -1,0 +1,23 @@
+{
+  "name": "@move.box/formatutils",
+  "version": "1.0.0",
+  "description": "web3 number formatutils",
+  "main": "index.js",
+  "scripts": {
+    "build": "rm -rf dist && tsc"
+  },
+  "keywords": [
+    "number",
+    "web3",
+    "price",
+    "shitnumber",
+    "formatutils"
+  ],
+  "author": "kk-vv",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}
