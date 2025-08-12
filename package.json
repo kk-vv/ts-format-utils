@@ -1,8 +1,12 @@
 {
   "name": "@move.box/formatutils",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "web3 number formatutils",
-  "main": "index.js",
+  "main": "dist/FormatUtils.js",
+  "types": "dist/FormatUtils.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "rm -rf dist && tsc"
   },
@@ -14,6 +18,10 @@
     "formatutils"
   ],
   "author": "kk-vv",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kk-vv/ts-format-utils"
+  },
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
