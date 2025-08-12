@@ -1,5 +1,11 @@
 # FormatUtils
 
+- Install 
+
+```
+npm i @move.box/formatutils
+```
+
 - Usage
 
 ```
