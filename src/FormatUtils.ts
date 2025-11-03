@@ -77,6 +77,7 @@ export const FormatUtils = {
       return this.removeDecimalTailZeros(num.toFixed(2))
     } else {
       const numStr = num.toString()
+      const isnegative = numStr.startsWith('-')
       const matchGroups = numStr.match(/(\d)\.(\d+)[e|E]-(\d+)/)
       if (matchGroups && matchGroups.length === 4) { //scientist number
         let tail = matchGroups[1] + matchGroups[2]
@@ -87,7 +88,7 @@ export const FormatUtils = {
         if ((Number(matchGroups[3]) - 1) > limitZeroCount) {
           fixStr = '0.0' + `{${Number(matchGroups[3]) - 1}}` + tail
         }
-        return this.removeDecimalTailZeros(fixStr)
+        return isnegative ? '-' + this.removeDecimalTailZeros(fixStr) : this.removeDecimalTailZeros(fixStr)
       } else {
         const matchGroups = numStr.match(/0\.(0+)([1-9]+[0]*[1-9]+)/)
         if (matchGroups && matchGroups.length === 3) {
@@ -101,12 +102,12 @@ export const FormatUtils = {
             fixStr = '0.0' + `{${zeroCount}}` + tail
           }
           fixStr = this.removeDecimalTailZeros(fixStr)
-          if (numStr.startsWith('-')) {
+          if (isnegative) {
             fixStr = '-' + fixStr
           }
           return fixStr
         } else {
-          return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount))
+          return isnegative ? '-' + this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount)) : this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount))
         }
       }
     }
@@ -173,7 +174,7 @@ export const FormatUtils = {
       return `{${normalDigits}}`
     })
   },
-  toTradingViewNumber(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
+  shitNumber2(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
     return this.fixToSubSymbol(this.shitNumber(text, tailValidNumberCount, limitZeroCount))
   },
   groupBy3Numbers(text: string | number | undefined | null) {
@@ -214,7 +215,7 @@ export const FormatUtils = {
       if (num > 1) {
         return (currencySymbol ?? '') + this.compactNumber(amount, 2)
       } else {
-        return (currencySymbol ?? '') + this.shitNumber(num)
+        return (currencySymbol ?? '') + this.shitNumber2(num)
       }
     }
     return placeholder
@@ -235,14 +236,14 @@ export const FormatUtils = {
       if (num >= 1) {
         return (currencySymbol ?? '') + this.groupBy3Numbers(this.removeDecimalTailZeros(num.toFixed(2)))
       } else {
-        return (currencySymbol ?? '') + this.toTradingViewNumber(amount)
+        return (currencySymbol ?? '') + this.shitNumber2(amount)
       }
     }
     return placeholder
   },
   formatReadable(amount: string | number | undefined | null, tailValidNumberCount: number = 4, placeholder: string = '--'): string {
     if (amount !== undefined && amount !== null) {
-      return this.toTradingViewNumber(amount, tailValidNumberCount)
+      return this.shitNumber2(amount, tailValidNumberCount)
     }
     return placeholder
   },

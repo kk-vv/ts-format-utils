@@ -8,7 +8,7 @@ export declare const FormatUtils: {
     compactNumber(number: string | number, digits?: number): string;
     fixToSubSymbol(v: string): string;
     revertSubSymbol(v: string): string;
-    toTradingViewNumber(text: string | number, tailValidNumberCount?: number, limitZeroCount?: number): string;
+    shitNumber2(text: string | number, tailValidNumberCount?: number, limitZeroCount?: number): string;
     groupBy3Numbers(text: string | number | undefined | null): string;
     removeDecimalTailZeros(text: string): string;
     formatByShorten(amount: string | number | undefined | null, currencySymbol?: string | null | boolean, placeholder?: string): string;
