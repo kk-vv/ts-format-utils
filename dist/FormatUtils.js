@@ -118,7 +118,7 @@ exports.FormatUtils = {
                     return fixStr;
                 }
                 else {
-                    return isnegative ? '-' + this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount)) : this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
+                    return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
                 }
             }
         }
