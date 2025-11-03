@@ -4,7 +4,8 @@ export const FormatUtils = {
   },
   fromUnits(src: number | string | bigint, decimal: number = 9): string {
     return this.quantityDivideDecimal(`${src}`, decimal)
-  }, deformatNumberToPureString(shitNumber: string) {
+  },
+  deformatNumberToPureString(shitNumber: string) {
     const scientistMatchGroups = shitNumber.match(/(\d)\.(\d+)[e|E]([-|+])(\d+)/)
     if (scientistMatchGroups && scientistMatchGroups.length === 5) { //scientist number
       const symbol = scientistMatchGroups[3]
@@ -26,7 +27,8 @@ export const FormatUtils = {
       }
     }
     return shitNumber
-  }, quantityDivideDecimal(quantity: string, decimal: number) {
+  },
+  quantityDivideDecimal(quantity: string, decimal: number) {
     const pureString = this.deformatNumberToPureString(quantity)
     let numbers = pureString.split('.')[0].replace(/^0+/, "")
     if (numbers.length > 0) {
@@ -42,7 +44,8 @@ export const FormatUtils = {
     } else {
       return '0'
     }
-  }, quantityMultiplyDecimal(quantity: string, decimal: number) {
+  },
+  quantityMultiplyDecimal(quantity: string, decimal: number) {
     const pureString = this.deformatNumberToPureString(quantity)
     const numbers = pureString.split('.')
     if (numbers.length >= 2) {
@@ -57,7 +60,8 @@ export const FormatUtils = {
     } else {
       return numbers[0] + '0'.repeat(decimal)
     }
-  }, shitNumber(number: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
+  },
+  shitNumber(number: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
     let num = 0
     if (typeof (number) === 'string') {
       const value = Number(number)
@@ -106,7 +110,8 @@ export const FormatUtils = {
         }
       }
     }
-  }, compactNumber(number: string | number, digits: number = 2) {
+  },
+  compactNumber(number: string | number, digits: number = 2) {
     if (number === undefined || number === null) {
       return ''
     }
@@ -132,7 +137,8 @@ export const FormatUtils = {
     const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/
     const item = lookup.findLast(item => num >= item.value)
     return item ? (num / item.value).toFixed(digits).replace(regexp, "").concat(item.symbol) : "0"
-  }, fixToSubSymbol(v: string) {
+  },
+  fixToSubSymbol(v: string) {
     const subscriptMap: { [key: string]: string } = {
       '0': '₀',
       '1': '₁',
@@ -148,7 +154,8 @@ export const FormatUtils = {
     return v.replace(/\{(\d+)\}/g, (_, p1: string) => {
       return p1.split('').map(digit => subscriptMap[digit] || digit).join('')
     })
-  }, revertSubSymbol(v: string) {
+  },
+  revertSubSymbol(v: string) {
     const subscriptToNormalMap: { [key: string]: string } = {
       '₀': '0',
       '₁': '1',
@@ -165,9 +172,11 @@ export const FormatUtils = {
       const normalDigits = match.split('').map(digit => subscriptToNormalMap[digit] || digit).join('')
       return `{${normalDigits}}`
     })
-  }, toTradingViewNumber(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
+  },
+  toTradingViewNumber(text: string | number, tailValidNumberCount: number = 4, limitZeroCount: number = 4) {
     return this.fixToSubSymbol(this.shitNumber(text, tailValidNumberCount, limitZeroCount))
-  }, groupBy3Numbers(text: string | number | undefined | null) {
+  },
+  groupBy3Numbers(text: string | number | undefined | null) {
     if (text !== undefined && text !== null) {
       let valueString = ''
       if (typeof (text) === 'number') {
@@ -184,40 +193,63 @@ export const FormatUtils = {
       }
     }
     return ''
-  }, removeDecimalTailZeros(text: string) {
+  },
+  removeDecimalTailZeros(text: string) {
     return text.replace(/\.0+$|(?<=\.[0-9]*[1-9])0+$/, "")
-  }, formatTokenPrice(price: string | number | undefined | null, placeholder: string = '--') {
-    if (price !== undefined && price !== null) {
-      return '$' + this.shitNumber(price)
-    }
-    return placeholder
-  }, formatMCap(amount: string | number | undefined | null, symbol: string = '$', placeholder: string = '--') {///with currency symbol compact by k M B T P E 
+  },
+  formatByShorten(amount: string | number | undefined | null, currencySymbol: string | null | boolean = null, placeholder: string = '--'): string {
+    currencySymbol = (currencySymbol === true) ? '$' : (currencySymbol === false ? '' : currencySymbol)
     if (amount !== undefined && amount !== null) {
-      return symbol + this.formatQuantity(amount)
-    }
-    return placeholder
-  }, formatQuantity(balance: string | number | undefined | null, placeholder: string = '--') {  /// compact by k M B T P E or shitnumber
-    if (balance !== undefined && balance !== null) {
       let num = 0
-      if (typeof (balance) === 'string') {
-        const value = Number(balance)
+      if (typeof (amount) === 'string') {
+        const value = Number(amount)
         if (isNaN(value)) {
           return '0'
         }
         num = value
       } else {
-        num = balance
+        num = amount
       }
 
       if (num > 1) {
-        return this.compactNumber(balance, 2)
+        return (currencySymbol ?? '') + this.compactNumber(amount, 2)
       } else {
-        return this.shitNumber(num)
+        return (currencySymbol ?? '') + this.shitNumber(num)
       }
     }
     return placeholder
-  }, formatTokenSupply(supply: string | number) {
-    return this.compactNumber(supply, 0)
+  },
+  formatByGrouped(amount: string | number | undefined | null, currencySymbol: string | null | boolean = null, placeholder: string = '--'): string {
+    currencySymbol = (currencySymbol === true) ? '$' : (currencySymbol === false ? '' : currencySymbol)
+    if (amount !== undefined && amount !== null) {
+      let num = 0
+      if (typeof (amount) === 'string') {
+        const value = Number(amount)
+        if (isNaN(value)) {
+          return '0'
+        }
+        num = value
+      } else {
+        num = amount
+      }
+      if (num >= 1) {
+        return (currencySymbol ?? '') + this.groupBy3Numbers(this.removeDecimalTailZeros(num.toFixed(2)))
+      } else {
+        return (currencySymbol ?? '') + this.toTradingViewNumber(amount)
+      }
+    }
+    return placeholder
+  },
+  formatReadable(amount: string | number | undefined | null, tailValidNumberCount: number = 4, placeholder: string = '--'): string {
+    if (amount !== undefined && amount !== null) {
+      return this.toTradingViewNumber(amount, tailValidNumberCount)
+    }
+    return placeholder
+  },
+  numberScale(price: string | number | bigint, scale: number) {
+    const priceValue = this.toUnits(price, 18)
+    const scaleValue = this.toUnits(scale, 18)
+    const fixedValue = this.fromUnits(priceValue * scaleValue, 36)
+    return fixedValue
   }
-
 }

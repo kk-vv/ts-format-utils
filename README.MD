@@ -29,4 +29,8 @@ FormatUtils.deformatNumberToPureString('0.0{13}1234') //0.00000000000001234
 FormatUtils.deformatNumberToPureString('0.0{5}1234') //0.000001234
 FormatUtils.revertSubSymbol('0.0₁₃1234') //0.0{13}1234
 FormatUtils.deformatNumberToPureString('0.0₁₃1234') //0.00000000000001234
+
+FormatUtils.formatReadable
+FormatUtils.formatByGrouped
+FormatUtils.formatByShorten
 ```
