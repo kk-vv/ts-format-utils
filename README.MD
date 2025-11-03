@@ -17,11 +17,11 @@ FormatUtils.shitNumber('0.0000456', 2, 4) //0.000045
 FormatUtils.shitNumber('0.000000456', 2, 4) //0.0{6}45
 FormatUtils.shitNumber('0.000000456', 2, 6) //0.00000045
 
-FormatUtils.toTradingViewNumber(0.0000000000000123456) //0.0₁₃1234
-FormatUtils.toTradingViewNumber('0.0000456') //0.0000456
-FormatUtils.toTradingViewNumber('0.000000456') //0.0₆456
-FormatUtils.toTradingViewNumber('0.000000456', 2, 6) //0.00000045
-FormatUtils.toTradingViewNumber('0.0000000456', 2, 6) //0.0₇45
+FormatUtils.shitNumberType2(0.0000000000000123456) //0.0₁₃1234
+FormatUtils.shitNumberType2('0.0000456') //0.0000456
+FormatUtils.shitNumberType2('0.000000456') //0.0₆456
+FormatUtils.shitNumberType2('0.000000456', 2, 6) //0.00000045
+FormatUtils.shitNumberType2('0.0000000456', 2, 6) //0.0₇45
 
 FormatUtils.deformatNumberToPureString('1.23e+10') //12300000000
 FormatUtils.deformatNumberToPureString('1.23e-10') //0.000000000123

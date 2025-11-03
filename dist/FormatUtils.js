@@ -86,6 +86,7 @@ exports.FormatUtils = {
         }
         else {
             const numStr = num.toString();
+            const isnegative = numStr.startsWith('-');
             const matchGroups = numStr.match(/(\d)\.(\d+)[e|E]-(\d+)/);
             if (matchGroups && matchGroups.length === 4) { //scientist number
                 let tail = matchGroups[1] + matchGroups[2];
@@ -96,7 +97,7 @@ exports.FormatUtils = {
                 if ((Number(matchGroups[3]) - 1) > limitZeroCount) {
                     fixStr = '0.0' + `{${Number(matchGroups[3]) - 1}}` + tail;
                 }
-                return this.removeDecimalTailZeros(fixStr);
+                return isnegative ? '-' + this.removeDecimalTailZeros(fixStr) : this.removeDecimalTailZeros(fixStr);
             }
             else {
                 const matchGroups = numStr.match(/0\.(0+)([1-9]+[0]*[1-9]+)/);
@@ -111,13 +112,13 @@ exports.FormatUtils = {
                         fixStr = '0.0' + `{${zeroCount}}` + tail;
                     }
                     fixStr = this.removeDecimalTailZeros(fixStr);
-                    if (numStr.startsWith('-')) {
+                    if (isnegative) {
                         fixStr = '-' + fixStr;
                     }
                     return fixStr;
                 }
                 else {
-                    return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
+                    return isnegative ? '-' + this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount)) : this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
                 }
             }
         }
@@ -185,7 +186,7 @@ exports.FormatUtils = {
             return `{${normalDigits}}`;
         });
     },
-    toTradingViewNumber(text, tailValidNumberCount = 4, limitZeroCount = 4) {
+    shitNumberType2(text, tailValidNumberCount = 4, limitZeroCount = 4) {
         return this.fixToSubSymbol(this.shitNumber(text, tailValidNumberCount, limitZeroCount));
     },
     groupBy3Numbers(text) {
@@ -229,7 +230,7 @@ exports.FormatUtils = {
                 return (currencySymbol ?? '') + this.compactNumber(amount, 2);
             }
             else {
-                return (currencySymbol ?? '') + this.shitNumber(num);
+                return (currencySymbol ?? '') + this.shitNumberType2(num);
             }
         }
         return placeholder;
@@ -252,14 +253,14 @@ exports.FormatUtils = {
                 return (currencySymbol ?? '') + this.groupBy3Numbers(this.removeDecimalTailZeros(num.toFixed(2)));
             }
             else {
-                return (currencySymbol ?? '') + this.toTradingViewNumber(amount);
+                return (currencySymbol ?? '') + this.shitNumberType2(amount);
             }
         }
         return placeholder;
     },
     formatReadable(amount, tailValidNumberCount = 4, placeholder = '--') {
         if (amount !== undefined && amount !== null) {
-            return this.toTradingViewNumber(amount, tailValidNumberCount);
+            return this.shitNumberType2(amount, tailValidNumberCount);
         }
         return placeholder;
     },
