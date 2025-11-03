@@ -1,17 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatUtils = void 0;
-var FormatUtils;
-(function (FormatUtils) {
-    function toUnits(src, decimal = 9) {
-        return BigInt(quantityMultiplyDecimal(`${src}`, decimal));
-    }
-    FormatUtils.toUnits = toUnits;
-    function fromUnits(src, decimal = 9) {
-        return quantityDivideDecimal(`${src}`, decimal);
-    }
-    FormatUtils.fromUnits = fromUnits;
-    function deformatNumberToPureString(shitNumber) {
+exports.FormatUtils = {
+    toUnits(src, decimal = 9) {
+        return BigInt(this.quantityMultiplyDecimal(`${src}`, decimal));
+    },
+    fromUnits(src, decimal = 9) {
+        return this.quantityDivideDecimal(`${src}`, decimal);
+    },
+    deformatNumberToPureString(shitNumber) {
         const scientistMatchGroups = shitNumber.match(/(\d)\.(\d+)[e|E]([-|+])(\d+)/);
         if (scientistMatchGroups && scientistMatchGroups.length === 5) { //scientist number
             const symbol = scientistMatchGroups[3];
@@ -27,7 +24,7 @@ var FormatUtils;
             }
         }
         else {
-            const shitfortmatNumer = revertSubSymbol(shitNumber);
+            const shitfortmatNumer = this.revertSubSymbol(shitNumber);
             const shitNumberMatchGroups = shitfortmatNumer.match(/0\.0\{(\d+)\}(\d+)/);
             if (shitNumberMatchGroups && shitNumberMatchGroups.length === 3) { //shit number 0.0{5}1234
                 const fixStr = '0.' + '0'.repeat(Number(shitNumberMatchGroups[1])) + shitNumberMatchGroups[2];
@@ -35,10 +32,9 @@ var FormatUtils;
             }
         }
         return shitNumber;
-    }
-    FormatUtils.deformatNumberToPureString = deformatNumberToPureString;
-    function quantityDivideDecimal(quantity, decimal) {
-        const pureString = deformatNumberToPureString(quantity);
+    },
+    quantityDivideDecimal(quantity, decimal) {
+        const pureString = this.deformatNumberToPureString(quantity);
         let numbers = pureString.split('.')[0].replace(/^0+/, "");
         if (numbers.length > 0) {
             const dt = (decimal + 1) - numbers.length;
@@ -49,15 +45,14 @@ var FormatUtils;
             if (offset === 0) {
                 offset = 1;
             }
-            return removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join(''));
+            return this.removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join(''));
         }
         else {
             return '0';
         }
-    }
-    FormatUtils.quantityDivideDecimal = quantityDivideDecimal;
-    function quantityMultiplyDecimal(quantity, decimal) {
-        const pureString = deformatNumberToPureString(quantity);
+    },
+    quantityMultiplyDecimal(quantity, decimal) {
+        const pureString = this.deformatNumberToPureString(quantity);
         const numbers = pureString.split('.');
         if (numbers.length >= 2) {
             const head = numbers[0];
@@ -73,9 +68,8 @@ var FormatUtils;
         else {
             return numbers[0] + '0'.repeat(decimal);
         }
-    }
-    FormatUtils.quantityMultiplyDecimal = quantityMultiplyDecimal;
-    function shitNumber(number, tailValidNumberCount = 4, limitZeroCount = 4) {
+    },
+    shitNumber(number, tailValidNumberCount = 4, limitZeroCount = 4) {
         let num = 0;
         if (typeof (number) === 'string') {
             const value = Number(number);
@@ -88,7 +82,7 @@ var FormatUtils;
             num = number;
         }
         if (num > 1) {
-            return removeDecimalTailZeros(num.toFixed(2));
+            return this.removeDecimalTailZeros(num.toFixed(2));
         }
         else {
             const numStr = num.toString();
@@ -102,7 +96,7 @@ var FormatUtils;
                 if ((Number(matchGroups[3]) - 1) > limitZeroCount) {
                     fixStr = '0.0' + `{${Number(matchGroups[3]) - 1}}` + tail;
                 }
-                return removeDecimalTailZeros(fixStr);
+                return this.removeDecimalTailZeros(fixStr);
             }
             else {
                 const matchGroups = numStr.match(/0\.(0+)([1-9]+[0]*[1-9]+)/);
@@ -116,20 +110,19 @@ var FormatUtils;
                     if (zeroCount > limitZeroCount) {
                         fixStr = '0.0' + `{${zeroCount}}` + tail;
                     }
-                    fixStr = removeDecimalTailZeros(fixStr);
+                    fixStr = this.removeDecimalTailZeros(fixStr);
                     if (numStr.startsWith('-')) {
                         fixStr = '-' + fixStr;
                     }
                     return fixStr;
                 }
                 else {
-                    return removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
+                    return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
                 }
             }
         }
-    }
-    FormatUtils.shitNumber = shitNumber;
-    function compactNumber(number, digits = 2) {
+    },
+    compactNumber(number, digits = 2) {
         if (number === undefined || number === null) {
             return '';
         }
@@ -156,9 +149,8 @@ var FormatUtils;
         const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
         const item = lookup.findLast(item => num >= item.value);
         return item ? (num / item.value).toFixed(digits).replace(regexp, "").concat(item.symbol) : "0";
-    }
-    FormatUtils.compactNumber = compactNumber;
-    function fixToSubSymbol(v) {
+    },
+    fixToSubSymbol(v) {
         const subscriptMap = {
             '0': '₀',
             '1': '₁',
@@ -174,9 +166,8 @@ var FormatUtils;
         return v.replace(/\{(\d+)\}/g, (_, p1) => {
             return p1.split('').map(digit => subscriptMap[digit] || digit).join('');
         });
-    }
-    FormatUtils.fixToSubSymbol = fixToSubSymbol;
-    function revertSubSymbol(v) {
+    },
+    revertSubSymbol(v) {
         const subscriptToNormalMap = {
             '₀': '0',
             '₁': '1',
@@ -193,17 +184,15 @@ var FormatUtils;
             const normalDigits = match.split('').map(digit => subscriptToNormalMap[digit] || digit).join('');
             return `{${normalDigits}}`;
         });
-    }
-    FormatUtils.revertSubSymbol = revertSubSymbol;
-    function toTradingViewNumber(text, tailValidNumberCount = 4, limitZeroCount = 4) {
-        return fixToSubSymbol(shitNumber(text, tailValidNumberCount, limitZeroCount));
-    }
-    FormatUtils.toTradingViewNumber = toTradingViewNumber;
-    function groupBy3Numbers(text) {
+    },
+    toTradingViewNumber(text, tailValidNumberCount = 4, limitZeroCount = 4) {
+        return this.fixToSubSymbol(this.shitNumber(text, tailValidNumberCount, limitZeroCount));
+    },
+    groupBy3Numbers(text) {
         if (text !== undefined && text !== null) {
             let valueString = '';
             if (typeof (text) === 'number') {
-                valueString = deformatNumberToPureString(text.toString());
+                valueString = this.deformatNumberToPureString(text.toString());
             }
             else {
                 valueString = text;
@@ -218,53 +207,66 @@ var FormatUtils;
             }
         }
         return '';
-    }
-    FormatUtils.groupBy3Numbers = groupBy3Numbers;
-    function removeDecimalTailZeros(text) {
+    },
+    removeDecimalTailZeros(text) {
         return text.replace(/\.0+$|(?<=\.[0-9]*[1-9])0+$/, "");
-    }
-    FormatUtils.removeDecimalTailZeros = removeDecimalTailZeros;
-    function formatTokenPrice(price, placeholder = '--') {
-        if (price !== undefined && price !== null) {
-            return '$' + shitNumber(price);
-        }
-        return placeholder;
-    }
-    FormatUtils.formatTokenPrice = formatTokenPrice;
-    ///with currency symbol compact by k M B T P E 
-    function formatMCap(amount, symbol = '$', placeholder = '--') {
+    },
+    formatByShorten(amount, currencySymbol = null, placeholder = '--') {
+        currencySymbol = (currencySymbol === true) ? '$' : (currencySymbol === false ? '' : currencySymbol);
         if (amount !== undefined && amount !== null) {
-            return symbol + formatQuantity(amount);
-        }
-        return placeholder;
-    }
-    FormatUtils.formatMCap = formatMCap;
-    /// compact by k M B T P E or shitnumber
-    function formatQuantity(balance, placeholder = '--') {
-        if (balance !== undefined && balance !== null) {
             let num = 0;
-            if (typeof (balance) === 'string') {
-                const value = Number(balance);
+            if (typeof (amount) === 'string') {
+                const value = Number(amount);
                 if (isNaN(value)) {
                     return '0';
                 }
                 num = value;
             }
             else {
-                num = balance;
+                num = amount;
             }
             if (num > 1) {
-                return compactNumber(balance, 2);
+                return (currencySymbol ?? '') + this.compactNumber(amount, 2);
             }
             else {
-                return shitNumber(num);
+                return (currencySymbol ?? '') + this.shitNumber(num);
             }
         }
         return placeholder;
+    },
+    formatByGrouped(amount, currencySymbol = null, placeholder = '--') {
+        currencySymbol = (currencySymbol === true) ? '$' : (currencySymbol === false ? '' : currencySymbol);
+        if (amount !== undefined && amount !== null) {
+            let num = 0;
+            if (typeof (amount) === 'string') {
+                const value = Number(amount);
+                if (isNaN(value)) {
+                    return '0';
+                }
+                num = value;
+            }
+            else {
+                num = amount;
+            }
+            if (num >= 1) {
+                return (currencySymbol ?? '') + this.groupBy3Numbers(this.removeDecimalTailZeros(num.toFixed(2)));
+            }
+            else {
+                return (currencySymbol ?? '') + this.toTradingViewNumber(amount);
+            }
+        }
+        return placeholder;
+    },
+    formatReadable(amount, tailValidNumberCount = 4, placeholder = '--') {
+        if (amount !== undefined && amount !== null) {
+            return this.toTradingViewNumber(amount, tailValidNumberCount);
+        }
+        return placeholder;
+    },
+    numberScale(price, scale) {
+        const priceValue = this.toUnits(price, 18);
+        const scaleValue = this.toUnits(scale, 18);
+        const fixedValue = this.fromUnits(priceValue * scaleValue, 36);
+        return fixedValue;
     }
-    FormatUtils.formatQuantity = formatQuantity;
-    function formatTokenSupply(supply) {
-        return compactNumber(supply, 0);
-    }
-    FormatUtils.formatTokenSupply = formatTokenSupply;
-})(FormatUtils || (exports.FormatUtils = FormatUtils = {}));
+};
