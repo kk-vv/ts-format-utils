@@ -1,6 +1,6 @@
 {
   "name": "@move.box/formatutils",
-  "version": "2.5.1",
+  "version": "2.6.0",
   "description": "web3 number formatutils",
   "main": "dist/FormatUtils.js",
   "types": "dist/FormatUtils.d.ts",
