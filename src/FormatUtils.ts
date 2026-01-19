@@ -89,7 +89,7 @@ export const FormatUtils = {
         }
         return isnegative ? '-' + this.removeDecimalTailZeros(fixStr) : this.removeDecimalTailZeros(fixStr)
       } else {
-        const matchGroups = numStr.match(/0\.(0+)([1-9]+[0]*[1-9]+)/)
+        const matchGroups = numStr.match(/0\.(0+)([1-9][0-9]*)/)
         if (matchGroups && matchGroups.length === 3) {
           const zeroCount = matchGroups[1].length
           let tail = matchGroups[2]
