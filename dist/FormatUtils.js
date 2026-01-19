@@ -9,17 +9,17 @@ exports.FormatUtils = {
         return this.quantityDivideDecimal(`${src}`, decimal);
     },
     deformatNumberToPureString(shitNumber) {
-        const scientistMatchGroups = shitNumber.match(/(\d)\.(\d+)[e|E]([-|+])(\d+)/);
+        const scientistMatchGroups = shitNumber.match(/(\d)(?:\.(\d+))?[e|E]([-|+])(\d+)/);
         if (scientistMatchGroups && scientistMatchGroups.length === 5) { //scientist number
             const symbol = scientistMatchGroups[3];
             if (symbol === '-') {
-                const numberTail = scientistMatchGroups[1] + scientistMatchGroups[2];
+                const numberTail = scientistMatchGroups[1] + (scientistMatchGroups[2] || '');
                 const fixStr = '0.' + '0'.repeat(Number(scientistMatchGroups[4]) - 1) + numberTail;
                 return fixStr;
             }
             else {
-                const numberHead = scientistMatchGroups[1] + scientistMatchGroups[2];
-                const fixStr = numberHead + '0'.repeat(Number(scientistMatchGroups[4]) - scientistMatchGroups[2].length);
+                const numberHead = scientistMatchGroups[1] + (scientistMatchGroups[2] || '');
+                const fixStr = numberHead + '0'.repeat(Number(scientistMatchGroups[4]) - (scientistMatchGroups[2]?.length || 0));
                 return fixStr;
             }
         }
@@ -87,9 +87,9 @@ exports.FormatUtils = {
         else {
             const numStr = num.toString();
             const isnegative = numStr.startsWith('-');
-            const matchGroups = numStr.match(/(\d)\.(\d+)[e|E]-(\d+)/);
+            const matchGroups = numStr.match(/(\d)(?:\.(\d+))?[e|E]-(\d+)/);
             if (matchGroups && matchGroups.length === 4) { //scientist number
-                let tail = matchGroups[1] + matchGroups[2];
+                let tail = matchGroups[1] + (matchGroups[2] || '');
                 if (tail.length > tailValidNumberCount) {
                     tail = tail.substring(0, tailValidNumberCount);
                 }
