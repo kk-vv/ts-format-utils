@@ -8,7 +8,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc"
+    "build": "rm -rf dist && tsc",
+    "test": "node --test -r ts-node/register test/*.test.ts"
   },
   "keywords": [
     "number",

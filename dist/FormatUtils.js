@@ -1,6 +1,21 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FormatUtils = void 0;
+function splitSign(text) {
+    if (text.startsWith('-')) {
+        return { sign: '-', unsigned: text.substring(1) };
+    }
+    if (text.startsWith('+')) {
+        return { sign: '', unsigned: text.substring(1) };
+    }
+    return { sign: '', unsigned: text };
+}
+function applySign(sign, text) {
+    return sign === '-' && !/^0(?:\.0*)?$/.test(text) ? '-' + text : text;
+}
+function normalizeIntegerString(text) {
+    return text.replace(/^0+/, '') || '0';
+}
 exports.FormatUtils = {
     toUnits(src, decimal = 9) {
         return BigInt(this.quantityMultiplyDecimal(`${src}`, decimal));
@@ -9,33 +24,41 @@ exports.FormatUtils = {
         return this.quantityDivideDecimal(`${src}`, decimal);
     },
     deformatNumberToPureString(shitNumber) {
-        const scientistMatchGroups = shitNumber.match(/(\d)(?:\.(\d+))?[e|E]([-|+])(\d+)/);
+        const { sign, unsigned } = splitSign(shitNumber);
+        const scientistMatchGroups = unsigned.match(/^(\d+)(?:\.(\d+))?[eE]([-+]?)(\d+)$/);
         if (scientistMatchGroups && scientistMatchGroups.length === 5) { //scientist number
-            const symbol = scientistMatchGroups[3];
-            if (symbol === '-') {
-                const numberTail = scientistMatchGroups[1] + (scientistMatchGroups[2] || '');
-                const fixStr = '0.' + '0'.repeat(Number(scientistMatchGroups[4]) - 1) + numberTail;
-                return fixStr;
+            const integerPart = scientistMatchGroups[1];
+            const decimalPart = scientistMatchGroups[2] || '';
+            const symbol = scientistMatchGroups[3] || '+';
+            const exponent = Number(scientistMatchGroups[4]) * (symbol === '-' ? -1 : 1);
+            const digits = integerPart + decimalPart;
+            const decimalIndex = integerPart.length + exponent;
+            let fixStr = '';
+            if (decimalIndex <= 0) {
+                fixStr = '0.' + '0'.repeat(Math.abs(decimalIndex)) + digits;
+            }
+            else if (decimalIndex >= digits.length) {
+                fixStr = digits + '0'.repeat(decimalIndex - digits.length);
             }
             else {
-                const numberHead = scientistMatchGroups[1] + (scientistMatchGroups[2] || '');
-                const fixStr = numberHead + '0'.repeat(Number(scientistMatchGroups[4]) - (scientistMatchGroups[2]?.length || 0));
-                return fixStr;
+                fixStr = digits.substring(0, decimalIndex) + '.' + digits.substring(decimalIndex);
             }
+            return applySign(sign, this.removeDecimalTailZeros(fixStr));
         }
         else {
-            const shitfortmatNumer = this.revertSubSymbol(shitNumber);
-            const shitNumberMatchGroups = shitfortmatNumer.match(/0\.0\{(\d+)\}(\d+)/);
+            const shitfortmatNumer = this.revertSubSymbol(unsigned);
+            const shitNumberMatchGroups = shitfortmatNumer.match(/^0\.0\{(\d+)\}(\d+)$/);
             if (shitNumberMatchGroups && shitNumberMatchGroups.length === 3) { //shit number 0.0{5}1234
                 const fixStr = '0.' + '0'.repeat(Number(shitNumberMatchGroups[1])) + shitNumberMatchGroups[2];
-                return fixStr;
+                return applySign(sign, this.removeDecimalTailZeros(fixStr));
             }
         }
         return shitNumber;
     },
     quantityDivideDecimal(quantity, decimal) {
         const pureString = this.deformatNumberToPureString(quantity);
-        let numbers = pureString.split('.')[0].replace(/^0+/, "");
+        const { sign, unsigned } = splitSign(pureString);
+        let numbers = unsigned.split('.')[0].replace(/^0+/, "");
         if (numbers.length > 0) {
             const dt = (decimal + 1) - numbers.length;
             if (dt > 0) {
@@ -45,7 +68,7 @@ exports.FormatUtils = {
             if (offset === 0) {
                 offset = 1;
             }
-            return this.removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join(''));
+            return applySign(sign, this.removeDecimalTailZeros([numbers.substring(0, offset), '.', numbers.substring(offset)].join('')));
         }
         else {
             return '0';
@@ -53,21 +76,24 @@ exports.FormatUtils = {
     },
     quantityMultiplyDecimal(quantity, decimal) {
         const pureString = this.deformatNumberToPureString(quantity);
-        const numbers = pureString.split('.');
+        const { sign, unsigned } = splitSign(pureString);
+        const numbers = unsigned.split('.');
+        let result = '';
         if (numbers.length >= 2) {
             const head = numbers[0];
             const tail = numbers[1];
             const tailDelta = decimal - tail.length;
             if (tailDelta <= 0) {
-                return (head + tail.substring(0, decimal)).replace(/^0+/, "");
+                result = head + tail.substring(0, decimal);
             }
             else {
-                return (head + tail + '0'.repeat(tailDelta)).replace(/^0+/, "");
+                result = head + tail + '0'.repeat(tailDelta);
             }
         }
         else {
-            return numbers[0] + '0'.repeat(decimal);
+            result = numbers[0] + '0'.repeat(decimal);
         }
+        return applySign(sign, normalizeIntegerString(result));
     },
     shitNumber(number, tailValidNumberCount = 4, limitZeroCount = 4) {
         let num = 0;
@@ -81,12 +107,13 @@ exports.FormatUtils = {
         else {
             num = number;
         }
-        if (num > 1) {
-            return this.removeDecimalTailZeros(num.toFixed(2));
+        const sign = num < 0 ? '-' : '';
+        const absNum = Math.abs(num);
+        if (absNum > 1) {
+            return applySign(sign, this.removeDecimalTailZeros(absNum.toFixed(2)));
         }
         else {
-            const numStr = num.toString();
-            const isnegative = numStr.startsWith('-');
+            const numStr = absNum.toString();
             const matchGroups = numStr.match(/(\d)(?:\.(\d+))?[e|E]-(\d+)/);
             if (matchGroups && matchGroups.length === 4) { //scientist number
                 let tail = matchGroups[1] + (matchGroups[2] || '');
@@ -97,7 +124,7 @@ exports.FormatUtils = {
                 if ((Number(matchGroups[3]) - 1) > limitZeroCount) {
                     fixStr = '0.0' + `{${Number(matchGroups[3]) - 1}}` + tail;
                 }
-                return isnegative ? '-' + this.removeDecimalTailZeros(fixStr) : this.removeDecimalTailZeros(fixStr);
+                return applySign(sign, this.removeDecimalTailZeros(fixStr));
             }
             else {
                 const matchGroups = numStr.match(/0\.(0+)([1-9][0-9]*)/);
@@ -112,13 +139,10 @@ exports.FormatUtils = {
                         fixStr = '0.0' + `{${zeroCount}}` + tail;
                     }
                     fixStr = this.removeDecimalTailZeros(fixStr);
-                    if (isnegative) {
-                        fixStr = '-' + fixStr;
-                    }
-                    return fixStr;
+                    return applySign(sign, fixStr);
                 }
                 else {
-                    return this.removeDecimalTailZeros(num.toFixed(tailValidNumberCount));
+                    return applySign(sign, this.removeDecimalTailZeros(absNum.toFixed(tailValidNumberCount)));
                 }
             }
         }
@@ -138,6 +162,8 @@ exports.FormatUtils = {
         else {
             num = number;
         }
+        const sign = num < 0 ? '-' : '';
+        const absNum = Math.abs(num);
         const lookup = [
             { value: 1, symbol: "" },
             { value: 1e3, symbol: "k" },
@@ -148,8 +174,8 @@ exports.FormatUtils = {
             { value: 1e18, symbol: "E" }
         ];
         const regexp = /\.0+$|(?<=\.[0-9]*[1-9])0+$/;
-        const item = lookup.findLast(item => num >= item.value);
-        return item ? (num / item.value).toFixed(digits).replace(regexp, "").concat(item.symbol) : "0";
+        const item = lookup.findLast(item => absNum >= item.value);
+        return item ? sign + (absNum / item.value).toFixed(digits).replace(regexp, "").concat(item.symbol) : "0";
     },
     fixToSubSymbol(v) {
         const subscriptMap = {
@@ -226,7 +252,7 @@ exports.FormatUtils = {
             else {
                 num = amount;
             }
-            if (num > 1) {
+            if (Math.abs(num) > 1) {
                 return (currencySymbol ?? '') + this.compactNumber(amount, 2);
             }
             else {
@@ -249,7 +275,7 @@ exports.FormatUtils = {
             else {
                 num = amount;
             }
-            if (num >= 1) {
+            if (Math.abs(num) >= 1) {
                 return (currencySymbol ?? '') + this.groupBy3Numbers(this.removeDecimalTailZeros(num.toFixed(2)));
             }
             else {
