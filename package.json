@@ -21,7 +21,7 @@
   "author": "kk-vv",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kk-vv/ts-format-utils"
+    "url": "git+https://github.com/kk-vv/ts-format-utils.git"
   },
   "license": "ISC",
   "type": "commonjs",
